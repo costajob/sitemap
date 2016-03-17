@@ -1,8 +1,8 @@
-require "fileutils"
-require "logger"
-require "sitemap/repository"
-require "sitemap/mapper"
-require "sitemap/base"
+require 'fileutils'
+require 'logger'
+require 'sitemap/repository'
+require 'sitemap/mapper'
+require 'sitemap/base'
 
 module Sitemap
   LOGGER = Logger::new(File.expand_path("../../../log/sitemap.log", __FILE__), "weekly")

@@ -1,2 +1,3 @@
-require "sitemap/version"
+require 'sitemap/version'
+require 'sitemap/factory'
 

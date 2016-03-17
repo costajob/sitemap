@@ -1,5 +1,5 @@
-require "sitemap/entities"
-require "sitemap/nodes"
+require 'sitemap/entities'
+require 'sitemap/nodes'
 
 module Sitemap
   class Mapper

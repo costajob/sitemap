@@ -1,5 +1,5 @@
-require "builder"
-require "zlib"
+require 'builder'
+require 'zlib'
 
 module Sitemap
   class Base

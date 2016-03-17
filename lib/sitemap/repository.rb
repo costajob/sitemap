@@ -1,7 +1,7 @@
-require "sequel"
-require "yaml"
-require "erb"
-require "sitemap/entities"
+require 'sequel'
+require 'yaml'
+require 'erb'
+require 'sitemap/entities'
 
 module Sitemap
   BASE_FOLDER = "sitemap"
