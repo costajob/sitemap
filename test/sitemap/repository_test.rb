@@ -15,6 +15,10 @@ describe Sitemap::Repository do
     Sitemap::Repository::config["development"].must_be_instance_of Hash
   end
 
+  it "must raise an error for missing sites" do
+    -> { Sitemap::Repository::new }.must_raise Sitemap::Repository::NoSitesError
+  end
+
   it "must collect categories" do
     stub(db).fetch { OpenStruct::new(:all => categories) }
     assert repository.categories.all? { |category| category.instance_of?(Sitemap::Category) }

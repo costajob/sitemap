@@ -13,7 +13,7 @@ module Sitemap
   class Repository
     DB_ENV = ENV.fetch("RAILS_ENV") { "development" }
 
-    class NoentConnectionError < ArgumentError; end
+    class DBConfigError < ArgumentError; end
     class NoSitesError < ArgumentError; end
 
     def self.config
@@ -21,7 +21,7 @@ module Sitemap
     end
 
     def self.connection_details
-      config.fetch(DB_ENV) { fail NoentConnectionError, "missing connection for #{@env}" }
+      config.fetch(DB_ENV) { fail DBConfigError, "missing connection for #{@env}" }
     end
 
     DB = Sequel.connect(connection_details)
