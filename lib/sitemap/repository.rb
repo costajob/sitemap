@@ -21,7 +21,7 @@ module Sitemap
     end
 
     def self.connection_details
-      config.fetch(DB_ENV) { fail DBConfigError, "missing connection for #{@env}" }
+      config.fetch(DB_ENV) { fail DBConfigError, "missing connection for #{DB_ENV}" }
     end
 
     DB = Sequel.connect(connection_details)
