@@ -74,7 +74,7 @@ better results, but was impressed by the boost i get:
 
 | Ruby Version   |  Execution time     |
 | :------------- | ------------------: |
-| 1.8.7          |          10m49.183s |
+| 1.8.7          |          63m16.141s |
 | 2.3.0          |          10m49.183s |
 
 My gentle guess is that the optimizations to the garbage collector introduced by Ruby 2.0 are the real deal here.  
