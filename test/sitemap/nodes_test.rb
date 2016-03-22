@@ -1,3 +1,4 @@
+require 'builder'
 require 'test_helper'
 require 'sitemap/nodes'
 

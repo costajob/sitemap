@@ -1,84 +1,86 @@
 require 'test_helper'
-require 'sitemap/entities'
+require 'stubs'
+
+describe Sitemap::Entity do
+  it "must collect sub classes" do
+    Sitemap::Entity::children.wont_be_empty
+  end
+
+  it "must collect types" do
+    Sitemap::Entity::types.wont_be_empty
+  end
+end
 
 describe Sitemap::Category do
-  let(:categories_data) { [{:site=>"ae", :gender=>"F", :name=>"women's shoes", :host=>"www.gucci.dev", :id=>62}, {:site=>"at", :gender=>"F", :name=>"women's shoes", :host=>"www.gucci.dev", :id=>62}, {:site=>"it", :gender=>"F", :name=>"women's shoes", :host=>"www.gucci.dev", :id=>62}, {:site=>"fr", :gender=>"F", :name=>"women's shoes", :host=>"www.gucci.dev", :id=>62}, {:site=>"de", :gender=>"F", :name=>"women's shoes", :host=>"www.gucci.dev", :id=>62}, {:site=>"bg", :gender=>"F", :name=>"women's shoes", :host=>"www.gucci.dev", :id=>63}] }
-  let(:category) { Sitemap::Category::new(categories_data.first) }
-  let(:categories) { categories_data.map { |attrs| Sitemap::Category::new(attrs) } }
+  let(:category) { Sitemap::Category::new(Stubs::categories_data.first) }
 
   it "must return loc value" do
     category.loc.must_equal "http://www.gucci.dev/ae/category/f/women_s_shoes"
   end
 
   it "must return siblings" do
-    siblings = category.siblings(categories)
+    siblings = category.siblings(Stubs::categories)
     siblings.wont_be_empty
-    siblings.first.must_equal categories.first
-    siblings.wont_include categories.last
+    siblings.first.must_equal Stubs::categories.first
+    siblings.wont_include Stubs::categories.last
   end
 end
 
 describe Sitemap::Sort do
-  let(:sorts_data) { [{:site=>"ae", :gender=>"F", :name=>"women's shoes", :sort => "sneakers non US", :host=>"www.gucci.dev", :id=>62}, {:site=>"at", :gender=>"F", :name=>"women's shoes", :sort => "sneakers non US", :host=>"www.gucci.dev", :id=>62}, {:site=>"it", :gender=>"F", :name=>"women's shoes", :sort => "sneakers non US", :host=>"www.gucci.dev", :id=>62}, {:site=>"fr", :gender=>"F", :name=>"women's shoes", :sort => "sneakers non US", :host=>"www.gucci.dev", :id=>62}, {:site=>"de", :gender=>"F", :name=>"women's shoes", :sort => "sneakers non US", :host=>"www.gucci.dev", :id=>62}, {:site=>"bg", :gender=>"F", :name=>"women's shoes", :sort => "pumps non US", :host=>"www.gucci.dev", :id=>63}] }
-  let(:sort) { Sitemap::Sort::new(sorts_data.first) }
-  let(:sorts) { sorts_data.map { |attrs| Sitemap::Sort::new(attrs) } }
+  let(:sort) { Sitemap::Sort::new(Stubs::sorts_data.first) }
 
   it "must return loc value" do
     sort.loc.must_equal "http://www.gucci.dev/ae/category/f/women_s_shoes/sneakers_non_us"
   end
 
   it "must return siblings" do
-    siblings = sort.siblings(sorts)
+    siblings = sort.siblings(Stubs::sorts)
     siblings.wont_be_empty
-    siblings.first.must_equal sorts.first
-    siblings.wont_include sorts.last
+    siblings.first.must_equal Stubs::sorts.first
+    siblings.wont_include Stubs::sorts.last
   end
 end
 
 describe Sitemap::Style do
-  let(:styles_data) { [{:id=>"248516J87108367", :site=>"ae", :host=>"www.gucci.dev"}, {:id=>"248516J87108367", :site=>"at", :host=>"www.gucci.dev"}, {:id=>"248516J87108367", :site=>"it", :host=>"www.gucci.dev"}, {:id=>"248516J87108367", :site=>"fr", :host=>"www.gucci.dev"}, {:id=>"248516J87108367", :site=>"de", :host=>"www.gucci.dev"}, {:id=>"348516J87108367", :site=>"bg", :host=>"www.gucci.dev"}] }
-  let(:style) { Sitemap::Style::new(styles_data.first) }
-  let(:styles) { styles_data.map { |attrs| Sitemap::Style::new(attrs) } }
+  let(:style) { Sitemap::Style::new(Stubs::styles_data.first) }
 
   it "must return loc value" do
     style.loc.must_equal "http://www.gucci.dev/ae/style/248516J87108367"
   end
 
   it "must return siblings" do
-    siblings = style.siblings(styles)
+    siblings = style.siblings(Stubs::styles)
     siblings.wont_be_empty
-    siblings.first.must_equal styles.first
-    siblings.wont_include styles.last
+    siblings.first.must_equal Stubs::styles.first
+    siblings.wont_include Stubs::styles.last
   end
 end
 
 describe Sitemap::Store do
-  let(:stores_data) { [{:site=>"ae", :host=>"www.gucci.dev", :name=>"1-dam"}, {:site=>"at", :host=>"www.gucci.dev", :name=>"1-dam"}, {:site=>"de", :host=>"www.gucci.dev", :name=>"1-dam"}, {:site=>"fr", :host=>"www.gucci.dev", :name=>"1-dam"}, {:site=>"it", :host=>"www.gucci.dev", :name=>"1-dam"}, {:site=>"ch", :host=>"www.gucci.dev", :name=>"1-boulevard-de-locean-boulevard-de-la-corniche-ain-diab"}, {:site=>"bg", :host=>"www.gucci.dev", :name=>"1-dam"}] }
-  let(:store) { Sitemap::Store::new(stores_data.first) }
-  let(:stores) { stores_data.map { |attrs| Sitemap::Store::new(attrs) } }
+  let(:store) { Sitemap::Store::new(Stubs::stores_data.first) }
 
   it "must return loc value" do
     store.loc.must_equal "http://www.gucci.dev/ae/stores/1-dam"
   end
 
   it "must return siblings" do
-    siblings = store.siblings(stores)
+    siblings = store.siblings(Stubs::stores)
     siblings.wont_be_empty
-    siblings.first.must_equal stores.first
-    siblings.wont_include stores[-2]
+    siblings.first.must_equal Stubs::stores.first
+    siblings.wont_include Stubs::stores[-2]
   end
 end
 
 describe Sitemap::Home do
-  let(:home) { Sitemap::Home::new(:host => "www.gucci.dev", :site => "it") }
+  let(:home) { Sitemap::Home::new(Stubs::homes_data.first) }
 
   it "must return loc value" do
-    home.loc.must_equal "http://www.gucci.dev/it/home"
+    home.loc.must_equal "http://www.gucci.dev/ae/home"
   end
 
   it "must return siblings" do
-    siblings = home.siblings(%w[it fr at de])
+    siblings = home.siblings(Stubs::homes)
     siblings.wont_be_empty
-    siblings.first.must_equal home
+    siblings.first.must_equal Stubs::homes.first
   end
 end

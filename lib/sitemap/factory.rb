@@ -6,8 +6,6 @@ require 'sitemap/logger'
 
 module Sitemap
   class Factory
-    TYPES = %w[categories sorts styles stores].freeze
-
     class SitemapFactoryError < StandardError; end
 
     def initialize(options = {})
@@ -18,7 +16,6 @@ module Sitemap
 
     def exec
       sitemaps
-      homes
       index
       propagate
     rescue => e
@@ -28,7 +25,7 @@ module Sitemap
 
     def files
       @files ||= @sites.reduce([]) do |acc,site|
-        TYPES.each do |type|
+        Entity::types.each do |type|
           acc << "#{path}/#{type}_#{site}.xml.gz"
         end
         acc
@@ -37,13 +34,13 @@ module Sitemap
 
     private
 
-    def mappers
+    def mappers_per_site
       mappers = @sites.inject({}) do |acc,site|
-        acc[site] = Mapper::new(:site => site, 
-                                :categories => @repository.categories, 
-                                :sorts => @repository.sorts,
-                                :styles => @repository.styles,
-                                :stores => @repository.stores)
+        Entity::children.each do |klass|
+          mapper = Mapper::new(:site => site, :entities => @repository.entities(klass))
+          acc[site] ||= []
+          acc[site] << mapper
+        end
         acc
       end
       @repository.disconnect
@@ -51,7 +48,7 @@ module Sitemap
     end
 
     def index
-      nodes = files.map { |f| Index::new(:loc => "#{PROTOCOL}://#{@repository.host}/#{BASE_FOLDER}/#{File::basename(f)}") }
+      nodes = files.map { |f| Index::new(:loc => "#{Config::PROTOCOL}://#{@repository.host}/#{Config::BASE_FOLDER}/#{File::basename(f)}") }
       index = Base::new(:name => "#{path}/index.xml",
                         :out => File::new("#{path}/index.xml", "wb"), 
                         :nodes => nodes,
@@ -63,29 +60,21 @@ module Sitemap
 
     def sitemaps
       Sitemap::logger::info("going to generate sitemaps for: #{@sites.join(", ")}")
-      mappers.each do |site, mapper|
-        fork { create_sitemap(site, mapper) }
+      mappers_per_site.each do |site, mappers|
+        fork { create_sitemap(site, mappers) }
       end 
     end
 
-    def create_sitemap(site, mapper)
-      TYPES.each do |type| 
-        sitemap = Base::new(:name => "#{type}_#{site}.xml", :nodes => mapper.send("#{type}_urls"))
+    def create_sitemap(site, mappers)
+      mappers.each do |mapper| 
+        sitemap = Base::new(:name => "#{mapper.type}_#{site}.xml", 
+                            :nodes => mapper.urls)
         Sitemap::logger::info("generating sitemap: #{sitemap.name}.gz")
         sitemap.compress("#{path}/#{sitemap.name}.gz")
       end
     rescue => e
       Sitemap::logger::error("#{e.message}\n#{e.backtrace.join("\n")}")
       raise SitemapFactoryError, e, e.backtrace
-    end
-
-    def homes
-      nodes = Mapper::homes_urls(@repository.host, @sites)
-      sitemap = Base::new(:name => "homes.xml", :nodes => nodes)
-      Sitemap::logger::info("generating sitemap: #{sitemap.name}.gz")
-      gz = "#{path}/#{sitemap.name}.gz"
-      sitemap.compress(gz)
-      files << gz
     end
 
     def path

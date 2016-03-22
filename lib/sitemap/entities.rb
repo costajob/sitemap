@@ -1,7 +1,21 @@
-module Sitemap
-  PROTOCOL = "http"
+require 'sitemap/config'
 
+module Sitemap
   class Entity
+    def self.children
+      @children ||= []
+    end
+
+    def self.types
+      children.map do |klass|
+        klass.to_s.split("::").last.downcase
+      end
+    end
+
+    def self.inherited(child)
+      children << child
+    end
+
     def siblings(entities)
       entities.select { |entity| sibling?(entity) }.unshift(self)
     end
@@ -31,12 +45,10 @@ module Sitemap
     end
 
     def loc
-      "#{PROTOCOL}://#{@host}/#{@site}/category/#{@gender}/#{name}"
+      "#{Config::PROTOCOL}://#{@host}/#{@site}/category/#{@gender}/#{name}"
     end
 
-    private
-
-    def sibling?(category)
+    private def sibling?(category)
       category.id == @id && category.host == @host && category.gender == @gender && category.site != @site
     end
   end
@@ -52,7 +64,7 @@ module Sitemap
     end
 
     def loc
-      "#{PROTOCOL}://#{@host}/#{@site}/category/#{@gender}/#{name}/#{sort}"
+      "#{Config::PROTOCOL}://#{@host}/#{@site}/category/#{@gender}/#{name}/#{sort}"
     end
   end
 
@@ -66,12 +78,10 @@ module Sitemap
     end
 
     def loc
-      "#{PROTOCOL}://#{@host}/#{@site}/style/#{@id}"
+      "#{Config::PROTOCOL}://#{@host}/#{@site}/style/#{@id}"
     end
 
-    private
-
-    def sibling?(style)
+    private def sibling?(style)
       style.id == @id && style.host == @host && style.site != @site
     end
   end
@@ -86,18 +96,16 @@ module Sitemap
     end
 
     def loc
-      "#{PROTOCOL}://#{@host}/#{@site}/stores/#{@name}"
+      "#{Config::PROTOCOL}://#{@host}/#{@site}/stores/#{@name}"
     end
 
-    private
-
-    def sibling?(store)
+    private def sibling?(store)
       store.name == @name && store.host == @host && store.site != @site
     end
   end
 
   class Home < Entity
-    attr_reader :site
+    attr_reader :host, :site
 
     def initialize(options)
       @host = options.fetch(:host)
@@ -105,13 +113,11 @@ module Sitemap
     end
 
     def loc
-      "#{PROTOCOL}://#{@host}/#{@site}/home"
+      "#{Config::PROTOCOL}://#{@host}/#{@site}/home"
     end
 
-    def siblings(sites)
-      sites.reject { |site| site == self.site }.map! do |site|
-        Home::new(:host => @host, :site => site)
-      end.unshift(self)
+    private def sibling?(home)
+      home.host == @host && home.site != @site
     end
   end
 end

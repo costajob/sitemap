@@ -1,4 +1,5 @@
 require 'date'
+require 'sitemap/config'
 
 module Sitemap
   class Node
@@ -23,7 +24,7 @@ module Sitemap
     end
 
     def lang
-      @lang ||= Sitemap::config[@site]
+      @lang ||= Config::hreflang[@site]
     end
 
     def render(doc)
@@ -33,7 +34,8 @@ module Sitemap
   end
 
   class URL < Node
-    attr_reader :loc, :lastmod, :changefreq, :links
+    attr_reader :loc, :lastmod, :changefreq
+    attr_accessor :links
 
     def initialize(options = {})
       super

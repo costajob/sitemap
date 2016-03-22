@@ -7,12 +7,12 @@ module Sitemap
 
     attr_reader :name
 
-    def initialize(options = {})
-      @name = options.fetch(:name) { "sitemap.xml" }
-      @parent = options.fetch(:parent) { :urlset }
-      @nodes = options.fetch(:nodes) { [] }
-      @out = options.fetch(:out) { "" }
-      @indent = options.fetch(:indent) { 2 }
+    def initialize(name: "sitemap.xml", parent: :urlset, nodes: [], out: "", indent: 2)
+      @name = name
+      @parent = parent
+      @nodes = nodes
+      @out = out
+      @indent = indent
     end
 
     def render
