@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'sitemap/repository'
+require 'sitemap/entities'
 require 'sitemap/mapper'
 require 'sitemap/base'
 require 'sitemap/logger'
@@ -12,6 +13,7 @@ module Sitemap
       @env = options[:env] || ENV.fetch("RAILS_ENV", "development")
       @sites = options[:sites].to_s.split(",").map!(&:strip)
       @repository = options.fetch(:repository) { Repository::new(:env => @env, :sites => @sites) }
+      @hreflang = options[:hreflang]
     end
 
     def exec
@@ -35,16 +37,18 @@ module Sitemap
     private
 
     def mappers_per_site
-      mappers = @sites.inject({}) do |acc,site|
+      data = @sites.inject({}) do |acc,site|
         Entity::children.each do |klass|
-          mapper = Mapper::new(:site => site, :entities => @repository.entities(klass))
+          mapper = Mapper::new(:site => site, 
+                               :entities => @repository.entities(klass),
+                               :hreflang => !!@hreflang)
           acc[site] ||= []
           acc[site] << mapper
         end
         acc
       end
       @repository.disconnect
-      mappers
+      data
     end
 
     def index
@@ -60,9 +64,18 @@ module Sitemap
 
     def sitemaps
       Sitemap::logger::info("going to generate sitemaps for: #{@sites.join(", ")}")
-      mappers_per_site.each do |site, mappers|
-        fork { create_sitemap(site, mappers) }
-      end 
+      mappers_per_site.each_slice(slice_size) do |slice|
+        fork do
+          slice.each do |site, mappers|
+            create_sitemap(site, mappers)
+          end
+        end
+      end
+      Process.waitall
+    end
+
+    def slice_size
+      @sites.size / Config::max_cpus
     end
 
     def create_sitemap(site, mappers)
@@ -86,9 +99,10 @@ module Sitemap
     end
 
     def propagate
-      Process.waitall
       paths.each do |p|
-        FileUtils::cp files, p
+        files.each do |f|
+          FileUtils::cp(f, p) if File::exist?(f)
+        end
       end
     end
   end

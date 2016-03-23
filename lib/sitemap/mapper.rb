@@ -4,16 +4,16 @@ module Sitemap
   class Mapper
     attr_reader :type
 
-    def initialize(site:, entities: [], print_links: true)
+    def initialize(site:, entities: [], hreflang: true)
       @site = site
       @entities = entities
-      @print_links = print_links
+      @hreflang = hreflang
     end
 
     def urls
       filter_by_site.map! do |entity|
         URL::new(:loc => entity.loc).tap do |url|
-          url.links = links(entity) if @print_links
+          url.links = links(entity) if @hreflang
         end
       end
     end

@@ -17,7 +17,7 @@ describe Sitemap::Mapper do
     end
 
     it "must get just #{msg} urls" do
-      mapper = Sitemap::Mapper::new(site: site, entities: entities, print_links: false)
+      mapper = Sitemap::Mapper::new(site: site, entities: entities, hreflang: false)
       mapper.urls.each do |url|
         url.must_be_instance_of Sitemap::URL
         url.links.must_be_empty

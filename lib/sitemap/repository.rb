@@ -3,17 +3,17 @@ require 'sitemap/config'
 
 module Sitemap
   class Repository
-    class NoSitesError < ArgumentError; end
-
     DB = Sequel.connect(Config::connection_params)
 
     def initialize(options = {})
       @env = options.fetch(:env) { Config::DB_ENV }
-      @sites = fetch_sites(options)
+      @sites = options.fetch(:sites) { [] }
     end
 
     def entities(klass)
-      DB.fetch(sql_by_klass(klass)).all.map! { |attrs| klass::new(attrs)}
+      return home_entities(klass) if klass == Sitemap::Home
+      sql = send(sql_by_klass(klass))
+      DB.fetch(sql).all.map! { |attrs| klass::new(attrs)}
     end
 
     def paths
@@ -30,14 +30,12 @@ module Sitemap
 
     private
 
-    def sql_by_klass(klass)
-      "#{klass.to_s.split('::').last.downcase}_sql"
+    def home_entities(klass)
+      @sites.map { |site| klass::new(host: host, site: site) }
     end
 
-    def fetch_sites(options)
-      sites = options.fetch(:sites) { [] }
-      fail NoSitesError if sites.empty?
-      sites
+    def sql_by_klass(klass)
+      :"#{klass.to_s.split('::').last.downcase}_sql"
     end
 
     def category_sql

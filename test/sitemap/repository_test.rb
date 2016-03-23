@@ -7,10 +7,6 @@ describe Sitemap::Repository do
   let(:repository) { Sitemap::Repository::new(:sites => %w[ae at it fr de bg]) }
   before { stub(repository).servers { OpenStruct::new(:all => Stubs::servers_data, :first => Stubs::servers_data.first)} }
 
-  it "must raise an error for missing sites" do
-    -> { Sitemap::Repository::new }.must_raise Sitemap::Repository::NoSitesError
-  end
-
   it "must collect categories" do
     stub(db).fetch { OpenStruct::new(:all => Stubs::categories_data) }
     assert repository.entities(Sitemap::Category).all? { |category| category.instance_of?(Sitemap::Category) }
@@ -31,6 +27,10 @@ describe Sitemap::Repository do
     assert repository.entities(Sitemap::Store).all? { |store| store.instance_of?(Sitemap::Store) }
   end
 
+  it "must collect homes" do
+    assert repository.entities(Sitemap::Home).all? { |home| home.instance_of?(Sitemap::Home) }
+  end
+
   it "must collect server paths" do
     repository.paths.must_equal %w[/vagrant/public/sitemap /home/vagrant/sitemap]
   end
@@ -43,9 +43,15 @@ describe Sitemap::Repository do
     rs = OpenStruct::new(:all => [])
     %w[Category Sort Style Store].each do |entity|
       klass = Sitemap::const_get(entity)
-      sql = repository.send(:sql_by_klass, klass)
+      sql_method = repository.send(:sql_by_klass, klass)
+      sql = repository.send(sql_method)
       mock(db).fetch(sql) { rs }
       repository.entities(klass).must_be_empty
     end
+  end
+
+  it "must return home entities without SQL" do
+    dont_allow(repository).home_sql
+    repository.entities(Sitemap::Home)
   end
 end

@@ -8,6 +8,7 @@ module Sitemap
     BASE_FOLDER = "sitemap".freeze
     DB_ENV = ENV.fetch("RAILS_ENV") { "development" }.freeze
     PROTOCOL = "http".freeze
+    MAX_CPUS = 2
 
     class DBConfigError < ArgumentError; end
 
@@ -21,6 +22,12 @@ module Sitemap
 
     def connection_params
       @connection_params ||= database.fetch(DB_ENV) { fail DBConfigError, "missing connection for #{DB_ENV}" }
+    end
+
+    def max_cpus
+      %x[cat /proc/cpuinfo | grep processor | wc -l].to_i
+    rescue StandardError
+      MAX_CPUS
     end
   end
 end
