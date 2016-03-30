@@ -12,7 +12,7 @@ module Sitemap
     def initialize(options = {})
       @env = options[:env] || ENV.fetch("RAILS_ENV", "development")
       @sites = options[:sites].to_s.split(",").map!(&:strip)
-      @repository = options.fetch(:repository) { Repository::new(:env => @env, :sites => @sites) }
+      @repository = options.fetch(:repository) { Repository::new(:sites => @sites) }
       @hreflang = options[:hreflang]
     end
 
@@ -75,7 +75,7 @@ module Sitemap
     end
 
     def slice_size
-      @sites.size / Config::max_cpus
+      @sites.size / Config::MAX_PROCS
     end
 
     def create_sitemap(site, mappers)

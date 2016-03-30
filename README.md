@@ -28,11 +28,14 @@ I keep trace of the generated files into an index XML.
 I structured the library by single-responsibility classes:
 
 ### Repository
-Its main role is interacting with database and dealing with impedance mismatch.
-It's one of the legacy classes of the gem, since it maps with the MySQL structure of the site.  
+Its main role is fetching data from some sources and solve impedance mismatch by returning appropriate entities for fetched data.  
+The constructor accepts a sites argument identifying for which languages the data will be fetched.  
+The public API returns also a paths method identifying where the sitemaps have to be saved and a host one, identifying the host to be used to generate the URLs.  
+I've included a MySQL subclass i've used in my project that uses the sequel gem to interact with a legacy database (not part of the gem).
 
 ### Entities
 It contains the Ruby representations of the data. I used a common template for each group.  
+The class constructor accepts an arguments hash: this is particularly convenient when interacting with Sequel dataset.  
 In order to compute all available HREFLANG directives i scan the same array of entities  i was cycling into to generate the main HREF entry.  
 This design halt me to alter the data structure in place to reduce RAM consumption.  This leads to some garbage collector issues (see below), but also avoid to hit database on each iteration.
 
@@ -81,12 +84,11 @@ I've used a [Vagrant](https://www.vagrantup.com/) box with the following specs:
 ### Sequel VS ActiveRecord
 The first version uses Rails ActiveRecord to fetch data from MySQL, but this implementation quickly shows its limits: loading several nested, eager loaded, data structures in memory was great for impedance mismatch, but a nightmare for Ruby 1.8.7 garbage collector.  
 To solve the issue i triggered a new query to the database at each iteration: the performance was slightly better, but latency and DB traffic was not an option for production code (i also cannot afford locking products table longer than few seconds).  
-At the end i decided to use few large SQL queries to load all of the data in memory at
-once, skipping ActiveRecord at all. I opted for the [Sequel](http://sequel.jeremyevans.net) gem, finding it pretty flexible: it returns plain hashes that i can throw to the entities constructors to get more idiomatic Ruby representation.  
+At the end i decided to use few large SQL queries to load all of the data in memory at once, skipping ActiveRecord at all. I opted for the [Sequel](http://sequel.jeremyevans.net) gem, finding it pretty flexible: it returns plain hashes that i can throw to the entities constructors to get more idiomatic Ruby representation.  
 I barely scratched the surface of Sequel, but it's a gem i will go for everyday in place of the bulky alternatives.
 
 ### Processes
-Once i get some decent performance it was time to parallelize the computation. I opted to fork a new process per available CPU: this was possible since Sequel data structures were small and (also without CoW) the memory footprint was under control.  
+Once i get some decent performance it was time to parallelize the computation. I found a good balance on my workstation by spawning three processes: you can modify this value by assigning the desired number to the MAX_PROCS environment variable.  
 By using processes i get a performance gain of about 35%.
 
 ### Ruby 1.8.7 VS 2.3.0
@@ -98,6 +100,6 @@ The script creates a total of 99 XML files, printing about 130k href entries and
 | Ruby Version   |  Execution time     |
 | :------------- | ------------------: |
 | 1.8.7          |          63m16.141s |
-| 2.3.0          |           7m26.215s |
+| 2.3.0          |          13m20.731s | 
 
 My gentle guess is that the optimizations to the garbage collector introduced by Ruby 2.0 are the real deal here.  

@@ -1,10 +1,10 @@
 require 'test_helper'
 require 'stubs'
-require 'sitemap/repository'
+require 'sitemap/mysql_repository'
 
-describe Sitemap::Repository do
-  let(:db) { Sitemap::Repository::DB }
-  let(:repository) { Sitemap::Repository::new(:sites => %w[ae at it fr de bg]) }
+describe Sitemap::MySQLRepository do
+  let(:db) { Sitemap::MySQLRepository::DB }
+  let(:repository) { Sitemap::MySQLRepository::new(:sites => %w[ae at it fr de bg]) }
   before { stub(repository).servers { OpenStruct::new(:all => Stubs::servers_data, :first => Stubs::servers_data.first)} }
 
   it "must collect categories" do

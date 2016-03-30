@@ -4,10 +4,10 @@ module Sitemap
   class Mapper
     attr_reader :type
 
-    def initialize(site:, entities: [], hreflang: true)
-      @site = site
-      @entities = entities
-      @hreflang = hreflang
+    def initialize(options = {})
+      @site = options.fetch(:site) { fail ArgumentError, "missing site" }
+      @entities = options.fetch(:entities) { [] }
+      @hreflang = options.fetch(:hreflang) { true }
     end
 
     def urls
