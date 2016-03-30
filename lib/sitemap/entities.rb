@@ -13,11 +13,17 @@ module Sitemap
     end
 
     def self.inherited(child)
-      children << child
+      Entity::children << child
     end
 
     def siblings(entities)
-      entities.select { |entity| sibling?(entity) }.unshift(self)
+      dup = entities.clone
+      siblings = []
+      while dup.count > 0 do
+        entity = dup.shift
+        siblings << entity if sibling?(entity)
+      end
+      siblings.unshift(self)
     end
 
     def ==(o)

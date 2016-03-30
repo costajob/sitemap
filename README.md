@@ -88,8 +88,7 @@ At the end i decided to use few large SQL queries to load all of the data in mem
 I barely scratched the surface of Sequel, but it's a gem i will go for everyday in place of the bulky alternatives.
 
 ### Processes
-Once i get some decent performance it was time to parallelize the computation. I found a good balance on my workstation by spawning three processes: you can modify this value by assigning the desired number to the MAX_PROCS environment variable.  
-By using processes i get a performance gain of about 35%.
+Once i get some decent performance it was time to parallelize the computation. You can set how many processes are spawned by setting the MAX_PROCS environment variable (default to 3).  
 
 ### Ruby 1.8.7 VS 2.3.0
 Once i extracted the gem i tested the library against ruby 2.3.0. I was expecting
