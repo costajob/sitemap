@@ -94,7 +94,7 @@ Once i get some decent performance it was time to parallelize the computation. Y
 Once i extracted the gem i tested the library against ruby 2.3.0. I was expecting
 better results, but was impressed by the boost i get.
 
-The script creates a total of 99 XML files, printing about 130k href entries and relative hreflang directives.
+The script creates a total of 136 XML files, printing about 130k href entries and relative hreflang directives.
 
 | Ruby Version   |  Execution time     |
 | :------------- | ------------------: |
