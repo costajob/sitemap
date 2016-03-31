@@ -3,3 +3,5 @@ require 'minitest/autorun'
 require 'rr'
 require 'ostruct'
 require 'tmpdir'
+
+ENV["MAX_PROCS"] = "1"

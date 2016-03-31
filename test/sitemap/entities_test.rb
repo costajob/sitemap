@@ -5,10 +5,6 @@ describe Sitemap::Entity do
   it "must collect sub classes" do
     Sitemap::Entity::children.wont_be_empty
   end
-
-  it "must collect types" do
-    Sitemap::Entity::types.wont_be_empty
-  end
 end
 
 describe Sitemap::Category do

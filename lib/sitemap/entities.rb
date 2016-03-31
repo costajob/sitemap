@@ -6,20 +6,14 @@ module Sitemap
       @children ||= []
     end
 
-    def self.types
-      children.map do |klass|
-        klass.to_s.split("::").last.downcase
-      end
-    end
-
     def self.inherited(child)
       Entity::children << child
     end
 
     def siblings(entities)
-      dup = entities.clone
+      dup = entities.dup
       siblings = []
-      while dup.count > 0 do
+      while dup.size > 0
         entity = dup.shift
         siblings << entity if sibling?(entity)
       end
@@ -54,7 +48,9 @@ module Sitemap
       "#{Config::PROTOCOL}://#{@host}/#{@site}/category/#{@gender}/#{name}"
     end
 
-    private def sibling?(category)
+    private 
+    
+    def sibling?(category)
       category.id == @id && category.host == @host && category.gender == @gender && category.site != @site
     end
   end
@@ -87,7 +83,9 @@ module Sitemap
       "#{Config::PROTOCOL}://#{@host}/#{@site}/style/#{@id}"
     end
 
-    private def sibling?(style)
+    private 
+    
+    def sibling?(style)
       style.id == @id && style.host == @host && style.site != @site
     end
   end
@@ -105,7 +103,9 @@ module Sitemap
       "#{Config::PROTOCOL}://#{@host}/#{@site}/stores/#{@name}"
     end
 
-    private def sibling?(store)
+    private 
+    
+    def sibling?(store)
       store.name == @name && store.host == @host && store.site != @site
     end
   end
@@ -122,7 +122,9 @@ module Sitemap
       "#{Config::PROTOCOL}://#{@host}/#{@site}/home"
     end
 
-    private def sibling?(home)
+    private 
+    
+    def sibling?(home)
       home.host == @host && home.site != @site
     end
   end

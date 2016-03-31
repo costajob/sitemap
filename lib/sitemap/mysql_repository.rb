@@ -32,7 +32,7 @@ module Sitemap
     private
 
     def home_entities(klass)
-      @sites.map { |site| klass::new(host: host, site: site) }
+      @sites.map { |site| klass::new(:host => host, :site => site) }
     end
 
     def sql_by_klass(klass)

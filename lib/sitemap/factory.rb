@@ -9,11 +9,14 @@ module Sitemap
   class Factory
     class SitemapFactoryError < StandardError; end
 
+    attr_reader :files
+
     def initialize(options = {})
       @env = options[:env] || ENV.fetch("RAILS_ENV", "development")
       @sites = options[:sites].to_s.split(",").map!(&:strip)
       @repository = options.fetch(:repository) { Repository::new(:sites => @sites) }
       @hreflang = options[:hreflang]
+      @files = []
     end
 
     def exec
@@ -23,15 +26,6 @@ module Sitemap
     rescue => e
       Sitemap::logger::error("#{e.message}\n#{e.backtrace.join("\n")}")
       raise SitemapFactoryError, e, e.backtrace
-    end
-
-    def files
-      @files ||= @sites.reduce([]) do |acc,site|
-        Entity::types.each do |type|
-          acc << "#{path}/#{type}_#{site}.xml.gz"
-        end
-        acc
-      end
     end
 
     private
@@ -52,18 +46,24 @@ module Sitemap
     end
 
     def index
-      nodes = files.map { |f| Index::new(:loc => "#{Config::PROTOCOL}://#{@repository.host}/#{Config::BASE_FOLDER}/#{File::basename(f)}") }
       index = Base::new(:name => "#{path}/index.xml",
                         :out => File::new("#{path}/index.xml", "wb"), 
-                        :nodes => nodes,
+                        :nodes => index_nodes,
                         :parent => "sitemapindex")
       Sitemap::logger::info("generating index: #{File::basename(index.name)}")
       index.render
-      files << index.name
+      @files << index.name
+    end
+
+    def index_nodes
+      @files.map do |f| 
+        Index::new(:loc => "#{Config::PROTOCOL}://#{@repository.host}/#{Config::BASE_FOLDER}/#{File::basename(f)}")
+      end
     end
 
     def sitemaps
       Sitemap::logger::info("going to generate sitemaps for: #{@sites.join(", ")}")
+      return sitemaps_no_fork if Config::MAX_PROCS <= 1
       mappers_per_site.each_slice(slice_size) do |slice|
         fork do
           slice.each do |site, mappers|
@@ -72,6 +72,12 @@ module Sitemap
         end
       end
       Process.waitall
+    end
+
+    def sitemaps_no_fork
+      mappers_per_site.each do |site, mappers|
+        create_sitemap(site, mappers)
+      end
     end
 
     def slice_size
@@ -83,7 +89,9 @@ module Sitemap
         sitemap = Base::new(:name => "#{mapper.type}_#{site}.xml", 
                             :nodes => mapper.urls)
         Sitemap::logger::info("generating sitemap: #{sitemap.name}.gz")
-        sitemap.compress("#{path}/#{sitemap.name}.gz")
+        gz = "#{path}/#{sitemap.name}.gz"
+        sitemap.compress(gz)
+        @files << gz
       end
     rescue => e
       Sitemap::logger::error("#{e.message}\n#{e.backtrace.join("\n")}")
@@ -100,9 +108,7 @@ module Sitemap
 
     def propagate
       paths.each do |p|
-        files.each do |f|
-          FileUtils::cp(f, p) if File::exist?(f)
-        end
+        FileUtils::cp(@files, p)
       end
     end
   end

@@ -8,7 +8,7 @@ module Sitemap
     BASE_FOLDER = "sitemap".freeze
     DB_ENV = ENV.fetch("RAILS_ENV") { "development" }.freeze
     PROTOCOL = "http".freeze
-    MAX_PROCS = ENV.fetch("MAX_PROCS") { 3 }
+    MAX_PROCS = ENV.fetch("MAX_PROCS") { 3 }.to_i
 
     class DBConfigError < ArgumentError; end
 
