@@ -4,9 +4,7 @@ require 'sitemap/factory'
 
 describe Sitemap::Factory do
   let(:factory) { Sitemap::Factory::new(:sites => " ae,at, it, fr ,de, bg", :repository => Stubs::repository) }
-  before do 
-    Sitemap::logger = Logger::new(nil)
-  end
+  before { Sitemap::logger = Logger::new(nil) }
 
   it "must define default attributes" do
     factory.instance_variable_get(:@env).must_equal ENV.fetch("RAILS_ENV", "development")
