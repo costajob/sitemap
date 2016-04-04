@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'spec_helper'
 require 'sitemap/base'
 
 describe Sitemap::Base do

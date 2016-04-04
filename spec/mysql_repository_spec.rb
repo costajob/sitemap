@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'spec_helper'
 require 'stubs'
 require 'sitemap/mysql_repository'
 

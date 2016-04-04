@@ -1,5 +1,5 @@
 require 'builder'
-require 'test_helper'
+require 'spec_helper'
 require 'sitemap/nodes'
 
 describe Sitemap do
