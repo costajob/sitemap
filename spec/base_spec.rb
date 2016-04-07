@@ -26,6 +26,12 @@ describe Sitemap::Base do
     sitemap.render.must_equal(%q{<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url hreflang="it-it">http://www.gucci.com/0</url><url hreflang="it-it">http://www.gucci.com/1</url><url hreflang="it-it">http://www.gucci.com/2</url><url hreflang="it-it">http://www.gucci.com/3</url><url hreflang="it-it">http://www.gucci.com/4</url></urlset>})
   end
 
+  it "must render the urlset XML document with XHTML namespace" do
+    nodes = 5.times.map { |i| node1::new("http://www.gucci.com/#{i}") }
+    sitemap = Sitemap::Base::new(:nodes => nodes, :indent => 0, :xhtml => true)
+    sitemap.render.must_equal(%q{<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url hreflang="it-it">http://www.gucci.com/0</url><url hreflang="it-it">http://www.gucci.com/1</url><url hreflang="it-it">http://www.gucci.com/2</url><url hreflang="it-it">http://www.gucci.com/3</url><url hreflang="it-it">http://www.gucci.com/4</url></urlset>})
+  end
+
   it "must render the index XML document" do
     nodes = 5.times.map { |i| node2::new("http://www.gucci.com/sitemap/#{i}.xml.gz") }
     sitemap = Sitemap::Base::new(:nodes => nodes, :parent => :sitemapindex, :indent => 0)

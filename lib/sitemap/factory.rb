@@ -87,7 +87,8 @@ module Sitemap
     def create_sitemap(site, mappers)
       mappers.each do |mapper| 
         sitemap = Base::new(:name => "#{mapper.type}_#{site}.xml", 
-                            :nodes => mapper.urls)
+                            :nodes => mapper.urls,
+                            :xhtml => true)
         Sitemap::logger::info("generating sitemap: #{sitemap.name}.gz")
         gz = "#{path}/#{sitemap.name}.gz"
         sitemap.compress(gz)

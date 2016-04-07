@@ -4,6 +4,7 @@ require 'zlib'
 module Sitemap
   class Base
     XMLNS = "http://www.sitemaps.org/schemas/sitemap/0.9".freeze
+    XHTML = "http://www.w3.org/1999/xhtml".freeze
 
     attr_reader :name
 
@@ -13,6 +14,7 @@ module Sitemap
       @nodes = options.fetch(:nodes) { [] }
       @out = options.fetch(:out) { "" }
       @indent = options.fetch(:indent) { 2 }
+      @xhtml = options.fetch(:xhtml) { false }
     end
 
     def render
@@ -38,11 +40,17 @@ module Sitemap
     end
 
     def body
-      doc.__send__(@parent, :xmlns => XMLNS) do
+      doc.__send__(@parent, namespaces) do
         @nodes.to_a.map! do |node|
           node.render(doc)
         end
       end
+    end
+
+    def namespaces
+      base = { :xmlns => XMLNS }
+      return base unless @xhtml
+      base.merge!({ :"xmlns:xhtml" => XHTML })
     end
 
     def close
