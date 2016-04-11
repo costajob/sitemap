@@ -17,5 +17,6 @@ namespace :sitemap do
     Sitemap::MySQLRepository::new(:env => ENV["env"]) .paths.each do |p|
       FileUtils::rm_r Dir["#{p}/*"]
     end
+    File::truncate(Sitemap::LOGGER_FILE, 0)
   end
 end
