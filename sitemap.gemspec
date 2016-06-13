@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary       = %q{Create XML sitemap by accessing data from MySQL}
   s.homepage      = "https://github.com/costajob/sitemap.git"
   s.license       = "MIT"
-  s.required_ruby_version = ">= 1.8.7"
+  s.required_ruby_version = ">= 1.9.2"
   s.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|s|features)/}) }
   s.bindir        = "exe"
   s.executables   = s.files.grep(%r{^exe/}) { |f| File.basename(f) }
